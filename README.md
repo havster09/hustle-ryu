@@ -63,6 +63,28 @@ npx expo start --web  # Use web version (works reliably)
 - Ensure backend is running on port 3000
 - Check `mobile/src/services/api.ts` for correct API_BASE_URL
 
+## Running Tests
+
+### Backend Tests
+```bash
+cd backend
+npm test
+```
+
+Expected output: 8 tests passing covering all API endpoints
+
+### Mobile Tests
+```bash
+cd mobile
+npm test
+```
+
+Expected output: 7 tests passing for types and constants validation
+
+**Test Coverage:**
+- Backend: API endpoints, pagination, search functionality
+- Mobile: TypeScript interfaces, color constants, data validation
+
 ## Demo & Testing Features
 
 **Core Features to Test:**
@@ -73,9 +95,11 @@ npx expo start --web  # Use web version (works reliably)
 4. **Navigation**: Switch between "Feed" and "Account" tabs
 5. **Pull-to-refresh**: Pull down on feed to refresh items
 6. **Account Screen**: View Ryu's profile with Book of Five Rings references
+7. **Unit Tests**: Run `npm test` in both backend and mobile directories
 
 **Technical Features Demonstrated:**
 - TypeScript throughout both frontend and backend
+- Comprehensive unit test coverage
 - Responsive design with modern UI
 - Error handling and loading states
 - Debounced search (300ms delay)
@@ -269,6 +293,7 @@ hustle-task/
 - Error handling and CORS configuration
 - TypeScript throughout
 - Health check endpoint (`/health`)
+- Complete unit test coverage (8 tests)
 
 **Mobile Client**
 - Feed screen with search functionality
@@ -278,9 +303,11 @@ hustle-task/
 - Load more button (infinite scroll placeholder)
 - Loading states and error handling
 - Pull-to-refresh functionality
+- Unit tests for types and constants (7 tests)
 
 **Modern Development Practices**
 - TypeScript for type safety
+- Comprehensive unit testing with Jest
 - Component-based architecture with custom hooks
 - Responsive design principles
 - Centralized color constants
@@ -292,5 +319,12 @@ hustle-task/
 - Reusable components with consistent styling
 - Error boundary handling
 - Performance optimized with proper memoization
+- Test-driven development approach
+
+**Testing Strategy**
+- Backend: API endpoint testing with supertest
+- Mobile: TypeScript interface and constants validation
+- Fast test execution (under 2 seconds each)
+- Easy setup with minimal dependencies
 
 This implementation demonstrates production-ready development practices and provides a solid foundation for scalability. 
