@@ -5,6 +5,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { StatusBar } from 'expo-status-bar';
 import FeedScreen from './src/screens/FeedScreen';
 import AccountScreen from './src/screens/AccountScreen';
+import { COLORS } from './src/constants/colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,22 +15,22 @@ export default function App() {
       <StatusBar style="auto" />
       <Tab.Navigator
         screenOptions={{
-          tabBarActiveTintColor: '#3B82F6',
-          tabBarInactiveTintColor: '#6B7280',
+          tabBarActiveTintColor: COLORS.redMedium,
+          tabBarInactiveTintColor: COLORS.grayMedium,
           tabBarStyle: {
-            backgroundColor: '#FFFFFF',
-            borderTopColor: '#E5E7EB',
+            backgroundColor: COLORS.white,
+            borderTopColor: COLORS.grayLight,
             borderTopWidth: 1,
           },
           headerStyle: {
-            backgroundColor: '#FFFFFF',
-            borderBottomColor: '#E5E7EB',
+            backgroundColor: COLORS.white,
+            borderBottomColor: COLORS.grayLight,
             borderBottomWidth: 1,
           },
           headerTitleStyle: {
             fontWeight: '600',
             fontSize: 18,
-            color: '#111827',
+            color: COLORS.grayDark,
           },
         }}
       >

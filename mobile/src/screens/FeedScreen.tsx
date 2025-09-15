@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React from 'react';
 import {
   View,
   FlatList,
@@ -6,100 +6,23 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
-  Alert,
   RefreshControl,
 } from 'react-native';
 import { Item } from '../types/Item';
-import { ApiService } from '../services/api';
 import { ItemCard } from '../components/ItemCard';
 import { SearchBar } from '../components/SearchBar';
+import { useFeedData } from '../hooks/useFeedData';
+import { COLORS } from '../constants/colors';
 
 export const FeedScreen: React.FC = () => {
-  const [items, setItems] = useState<Item[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isSearchMode, setIsSearchMode] = useState(false);
-
-  const loadItems = useCallback(async (page: number = 1, append: boolean = false) => {
-    try {
-      if (page === 1) {
-        setIsLoading(true);
-      } else {
-        setIsLoadingMore(true);
-      }
-
-      const response = await ApiService.getItems(page, 10);
-      
-      const newItems = append ? [...items, ...response.items] : response.items;
-      setItems(newItems);
-      setHasMore(response.pagination.hasMore);
-      setCurrentPage(page);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to load items. Please try again.');
-      console.error('Failed to load items:', error);
-    } finally {
-      setIsLoading(false);
-      setIsLoadingMore(false);
-      setIsRefreshing(false);
-    }
-  }, [items]);
-
-  const searchItems = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setIsSearchMode(false);
-      loadItems(1, false);
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setIsSearchMode(true);
-      const response = await ApiService.searchItems(query);
-      setItems(response.items);
-      setHasMore(false); // Search results don't paginate for simplicity
-    } catch (error) {
-      Alert.alert('Error', 'Failed to search items. Please try again.');
-      console.error('Failed to search items:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [loadItems]);
-
-  useEffect(() => {
-    loadItems();
-  }, []);
-
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      searchItems(searchQuery);
-    }, 300); // Debounce search
-
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery, searchItems]);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    setSearchQuery('');
-    setIsSearchMode(false);
-    loadItems(1, false);
-  };
-
-  const handleLoadMore = () => {
-    if (!isLoadingMore && hasMore && !isSearchMode) {
-      loadItems(currentPage + 1, true);
-    }
-  };
+  const { state, handleRefresh, handleLoadMore, handleSearchQueryChange } = useFeedData();
 
   const renderItem = ({ item }: { item: Item }) => (
     <ItemCard item={item} />
   );
 
   const renderFooter = () => {
-    if (isSearchMode || !hasMore) {
+    if (state.isSearchMode || !state.hasMore) {
       return null;
     }
 
@@ -108,10 +31,10 @@ export const FeedScreen: React.FC = () => {
         <TouchableOpacity
           style={styles.loadMoreButton}
           onPress={handleLoadMore}
-          disabled={isLoadingMore}
+          disabled={state.isLoadingMore}
         >
-          {isLoadingMore ? (
-            <ActivityIndicator size="small" color="#FFFFFF" />
+          {state.isLoadingMore ? (
+            <ActivityIndicator size="small" color={COLORS.white} />
           ) : (
             <Text style={styles.loadMoreText}>Load More</Text>
           )}
@@ -123,7 +46,7 @@ export const FeedScreen: React.FC = () => {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>
-        {isSearchMode ? 'No items found for your search' : 'No items available'}
+        {state.isSearchMode ? 'No items found for your search' : 'No items available'}
       </Text>
     </View>
   );
@@ -131,19 +54,19 @@ export const FeedScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <SearchBar
-        value={searchQuery}
-        onChangeText={setSearchQuery}
+        value={state.searchQuery}
+        onChangeText={handleSearchQueryChange}
         placeholder="Search items..."
       />
       
-      {isLoading && items.length === 0 ? (
+      {state.isLoading && state.items.length === 0 ? (
         <View style={styles.loadingContainer}>
-          <ActivityIndicator size="large" color="#3B82F6" />
+          <ActivityIndicator size="large" color={COLORS.blue} />
           <Text style={styles.loadingText}>Loading items...</Text>
         </View>
       ) : (
         <FlatList
-          data={items}
+          data={state.items}
           renderItem={renderItem}
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContainer}
@@ -151,9 +74,9 @@ export const FeedScreen: React.FC = () => {
           ListFooterComponent={renderFooter}
           refreshControl={
             <RefreshControl
-              refreshing={isRefreshing}
+              refreshing={state.isRefreshing}
               onRefresh={handleRefresh}
-              colors={['#3B82F6']}
+              colors={[COLORS.blue]}
             />
           }
           showsVerticalScrollIndicator={false}
@@ -166,7 +89,7 @@ export const FeedScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: COLORS.cleanWhite,
   },
   listContainer: {
     paddingBottom: 20,
@@ -179,7 +102,7 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 16,
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.grayMedium,
   },
   emptyContainer: {
     flex: 1,
@@ -189,7 +112,7 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 16,
-    color: '#6B7280',
+    color: COLORS.grayMedium,
     textAlign: 'center',
   },
   footerContainer: {
@@ -197,15 +120,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadMoreButton: {
-    backgroundColor: '#3B82F6',
+    backgroundColor: COLORS.redMedium,
     paddingHorizontal: 24,
     paddingVertical: 12,
     borderRadius: 8,
     minWidth: 120,
     alignItems: 'center',
+    borderWidth: 1,
+    borderColor: COLORS.redDeep,
   },
   loadMoreText: {
-    color: '#FFFFFF',
+    color: COLORS.white,
     fontSize: 16,
     fontWeight: '600',
   },

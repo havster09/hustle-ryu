@@ -2,106 +2,127 @@
 
 A simplified Feed application built with Node.js/Express backend and React Native mobile client.
 
-## Development Environment Setup
+## Quick Start Guide
 
 ### Prerequisites
 - Node.js (v18 or higher)
 - npm or yarn
 - Expo CLI (`npm install -g @expo/cli`)
-- iOS Simulator (Mac) or Android Studio (for Android development)
 
-### Backend Setup
+### Running the Application (5 minute setup)
 
-1. Navigate to the backend directory:
+1. **Clone and navigate to project:**
+```bash
+git clone <repository-url>
+cd hustle-task
+```
+
+2. **Start Backend (Terminal 1):**
 ```bash
 cd backend
-```
-
-2. Install dependencies:
-```bash
 npm install
+npm run build
+node dist/server.js
 ```
+Backend running at `http://localhost:3000`
 
-3. Start the development server:
-```bash
-npm run dev
-```
-
-The backend server will run on `http://localhost:3000` with the following endpoints:
-- Health check: `GET /health`
-- Get items: `GET /api/items?page=1&limit=10`
-- Search items: `GET /api/items/search?q=query`
-
-### Mobile Client Setup
-
-1. Navigate to the mobile directory:
+3. **Start Mobile Client (Terminal 2):**
 ```bash
 cd mobile
-```
-
-2. Install dependencies:
-```bash
 npm install
+npx expo start --web
 ```
+Mobile app running at `http://localhost:19006`
 
-3. Start the Expo development server:
+**Alternative Mobile Setup:**
+- For device testing: `npx expo start` then scan QR code with Expo Go app
+- For iOS Simulator: Press `i` after `npx expo start`
+- For Android Emulator: Press `a` after `npx expo start`
+
+### API Endpoints Available
+- Health check: `GET http://localhost:3000/health`
+- Get items: `GET http://localhost:3000/api/items?page=1&limit=10`
+- Search items: `GET http://localhost:3000/api/items/search?q=streetfighter`
+
+## Troubleshooting
+
+**Backend not starting?**
 ```bash
-npm start
+cd backend
+npm run build  # Compile TypeScript first
+node dist/server.js  # Run compiled JavaScript
 ```
 
-4. Use the Expo Go app on your device or run on simulator:
-- iOS: Press `i` to open iOS Simulator
-- Android: Press `a` to open Android Emulator
-- Web: Press `w` to open in web browser
+**Mobile app file watcher issues on macOS?**
+```bash
+cd mobile
+npx expo start --web  # Use web version (works reliably)
+```
 
-### Environment Variables
+**API calls failing?**
+- Ensure backend is running on port 3000
+- Check `mobile/src/services/api.ts` for correct API_BASE_URL
 
-The application uses the following default configuration:
-- Backend Port: `3000` (configurable via `PORT` environment variable)
-- API Base URL in mobile app: `http://localhost:3000`
+## Demo & Testing Features
 
-For production deployment, update the `API_BASE_URL` in `mobile/src/services/api.ts`.
+**Core Features to Test:**
+
+1. **Item Feed**: View Street Fighter themed items on the main screen
+2. **Real-time Search**: Type "hadoken", "ryu", or "chun-li" in search bar
+3. **Pagination**: Click "Load More" button at bottom of feed
+4. **Navigation**: Switch between "Feed" and "Account" tabs
+5. **Pull-to-refresh**: Pull down on feed to refresh items
+6. **Account Screen**: View Ryu's profile with Book of Five Rings references
+
+**Technical Features Demonstrated:**
+- TypeScript throughout both frontend and backend
+- Responsive design with modern UI
+- Error handling and loading states
+- Debounced search (300ms delay)
+- RESTful API with pagination
+- Component-based architecture
 
 ## Technical Decisions
 
 ### Backend Architecture
 
-Framework Choice: Express.js with TypeScript
+**Framework Choice: Express.js with TypeScript**
 - Express.js provides a minimal, flexible web framework for RESTful APIs
 - TypeScript adds type safety and better developer experience
 - Clean separation of concerns with dedicated folders for types, data, and services
 
-API Design
+**API Design**
 - RESTful endpoints following conventional patterns
-- Pagination support for scalability
-- Error handling with appropiate HTTP status codes
+- Pagination support for scalability  
+- Error handling with appropriate HTTP status codes
 - CORS enabled for cross-origin requests from mobile client
 
-Data Layer
-- In-memory mock data for simplicity
+**Data Layer**
+- In-memory mock data for simplicity (no database required)
 - Structured item objects with id, text, category, and timestamp
 - Simple text-based search implementation across text and category fields
 
 ### Mobile Client Architecture
 
-Framework Choice: React Native with Expo
+**Framework Choice: React Native with Expo**
 - Expo provides rapid development setup and developer experience
 - React Native enables code sharing between iOS and Android
-- TypeScript througout for type safety and maintainability
+- TypeScript throughout for type safety and maintainability
 
-State Management
-- Local component state using React hooks
-- Custom hooks pattern for API calls with loading/error states
+**State Management**
+- useReducer for complex state management in feed screen
+- Custom hooks pattern (useFeedData) for API calls with loading/error states
 - Debounced search to minimize API calls
 
-Component Architecture
+**Component Architecture**
 - Functional components with TypeScript interfaces
 - Reusable components (ItemCard, SearchBar)
 - Clean separation between UI components and business logic
+- Centralized color constants for consistent theming
 
-Navigation
+**Navigation**
 - React Navigation with bottom tab navigator
-- Simple two-screen structure (Feed and Acount)
+- Simple two-screen structure (Feed and Account)
 - Consistent styling and user experience
 
 ### UI/UX Design
@@ -121,23 +142,23 @@ Performance Considerations
 
 ### Full Infinite Pagination
 
-Current Implementation:
-- Basic "Load More" button with page-based paginaton
+**Current Implementation:**
+- Basic "Load More" button with page-based pagination
 - Simple hasMore flag to control button visibility
 
-Production Implementation:
+**Production Implementation:**
 - Replace "Load More" with true infinite scroll using onEndReached
-- Implement pull-to-refresh functionality  
+- Implement pull-to-refresh functionality (already added)
 - Add skeleton loading states
 - Cache management for offline support
 
 ### Real-world Search Indexing
 
-Current Implementation:
+**Current Implementation:**
 - Simple string matching on text and category fields
-- In-memory filtering
+- In-memory filtering with debounced input
 
-Production Implementation:
+**Production Implementation:**
 - Elasticsearch or Algolia for advanced search capabilities
 - Full-text search with relevance scoring
 - Search result highlighting
@@ -146,33 +167,32 @@ Production Implementation:
 
 ### Complete User Authentication Flow
 
-Architecture Overview:
+**Architecture Overview:**
 - JWT-based authentication with refresh tokens
 - OAuth integration (Google, Apple, GitHub)
 - Role-based access control
 - Multi-factor authentication
 
-Mobile Client Authentication:
+**Mobile Client Authentication:**
 - Secure storage for tokens using device keychain
 - Biometric authentication support
 - Authentication state management with React Context
 
-Security Considerations:
+**Security Considerations:**
 - Secure token storage using device keychain
-- Biometric authentication support
 - Session management with automatic token refresh
 - Rate limiting and abuse protection
 - Data encryption at rest and in transit
 
 ### Database & Infrastructure
 
-Production Database:
+**Production Database:**
 - PostgreSQL with proper indexing for performance
 - User table with email authentication
 - Items table with user relationships
 - Full-text search indexes for efficient queries
 
-Caching Strategy:
+**Caching Strategy:**
 - Redis for session storage and frequently accessed data
 - CDN for static assets and images
 - Application-level caching for search results
@@ -186,8 +206,6 @@ Caching Strategy:
 - Expo EAS for mobile app builds and distribution
 
 ### Backend Pipeline
-
-The pipeline would include:
 - Automated testing (unit, integration, e2e)
 - Code quality checks (ESLint, Prettier)
 - Security scanning
@@ -195,8 +213,6 @@ The pipeline would include:
 - Deployment to staging and production environments
 
 ### Mobile Pipeline
-
-The mobile pipeline would include:
 - Automated testing and linting
 - Building preview and production versions using Expo EAS
 - Submission to app stores (iOS App Store and Google Play)
@@ -204,19 +220,19 @@ The mobile pipeline would include:
 
 ### Pipeline Features
 
-Quality Gates:
-- Automated testing (unit, intergration, e2e)
+**Quality Gates:**
+- Automated testing (unit, integration, e2e)
 - Code quality checks (ESLint, Prettier)
 - Security scanning
 - Performance monitoring integration
 
-Deployment Strategy:
+**Deployment Strategy:**
 - Staging environment for preview builds
 - Blue-green deployment for zero downtime
 - Automatic rollback on deployment failures
 - Environment-specific configuration management
 
-Monitoring & Alerting:
+**Monitoring & Alerting:**
 - Application performance monitoring
 - Error tracking and logging
 - Health checks and uptime monitoring
@@ -247,24 +263,34 @@ hustle-task/
 
 ## Core Features Implemented
 
-Backend API
-- Items endpoint with pagination support
-- Search endpoint with query parameter
+**Backend API**
+- Items endpoint with pagination support (`/api/items`)
+- Search endpoint with query parameter (`/api/items/search`)
 - Error handling and CORS configuration
 - TypeScript throughout
+- Health check endpoint (`/health`)
 
-Mobile Client
+**Mobile Client**
 - Feed screen with search functionality
-- Account screen (placeholder)
+- Account screen with Street Fighter theme
 - Bottom tab navigation
 - Real-time search with debouncing
 - Load more button (infinite scroll placeholder)
 - Loading states and error handling
+- Pull-to-refresh functionality
 
-Modern Development Practices
+**Modern Development Practices**
 - TypeScript for type safety
-- Component-based architecture
+- Component-based architecture with custom hooks
 - Responsive design principles
-- Clean code and documentation
+- Centralized color constants
+- Clean code separation and documentation
 
-This implementation provides a solid foundation for a production-ready application. 
+**Architecture Highlights**
+- useReducer for complex state management
+- Custom hooks for API logic extraction
+- Reusable components with consistent styling
+- Error boundary handling
+- Performance optimized with proper memoization
+
+This implementation demonstrates production-ready development practices and provides a solid foundation for scalability. 
